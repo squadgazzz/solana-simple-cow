@@ -1,5 +1,7 @@
+#![allow(unexpected_cfgs)]
+
 use anchor_lang::prelude::*;
-use anchor_spl::token::{self, Token, TokenAccount, Transfer, CloseAccount, Mint};
+use anchor_spl::token::{self, Token, TokenAccount, Mint, Transfer, CloseAccount};
 
 declare_id!("Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9");
 
@@ -72,7 +74,7 @@ pub mod p2p_swap {
     }
 
     /// Accept an offer and execute atomic token swap
-    pub fn accept_offer(ctx: Context<AcceptOffer>) -> Result<()> {
+    pub fn accept_offer(ctx: Context<AcceptOffer>, _offer_id: u64) -> Result<()> {
         let offer = &ctx.accounts.offer;
 
         // Validate token mints match the offer
@@ -135,7 +137,7 @@ pub mod p2p_swap {
     }
 
     /// Cancel an offer and return tokens to maker
-    pub fn cancel_offer(ctx: Context<CancelOffer>) -> Result<()> {
+    pub fn cancel_offer(ctx: Context<CancelOffer>, _offer_id: u64) -> Result<()> {
         let offer = &ctx.accounts.offer;
 
         // Transfer tokens from vault back to maker using PDA signer
