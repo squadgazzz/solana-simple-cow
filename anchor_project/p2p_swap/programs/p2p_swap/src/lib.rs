@@ -33,6 +33,12 @@ pub mod p2p_swap {
         let offer = &mut ctx.accounts.offer;
         let clock = Clock::get()?;
 
+        // Initialize UserProfile if this is first time
+        if user_profile.offer_count == 0 && user_profile.authority == Pubkey::default() {
+            user_profile.authority = ctx.accounts.maker.key();
+            msg!("Auto-initialized user profile for {}", user_profile.authority);
+        }
+
         // Get current offer ID and increment counter
         let offer_id = user_profile.offer_count;
         user_profile.offer_count = user_profile
@@ -200,6 +206,15 @@ pub struct InitializeUser<'info> {
 #[derive(Accounts)]
 pub struct CreateOffer<'info> {
     #[account(
+        init_if_needed,
+        payer = maker,
+        space = 8 + UserProfile::SIZE,
+        seeds = [b"user_profile", maker.key().as_ref()],
+        bump
+    )]
+    pub user_profile: Account<'info, UserProfile>,
+
+    #[account(
         init,
         payer = maker,
         space = 8 + Offer::SIZE,
@@ -228,14 +243,6 @@ pub struct CreateOffer<'info> {
 
     #[account(
         mut,
-        seeds = [b"user_profile", maker.key().as_ref()],
-        bump,
-        has_one = authority @ ErrorCode::Unauthorized
-    )]
-    pub user_profile: Account<'info, UserProfile>,
-
-    #[account(
-        mut,
         constraint = maker_token_account.mint == mint_offered.key() @ ErrorCode::InvalidMint,
         constraint = maker_token_account.owner == maker.key() @ ErrorCode::Unauthorized,
     )]
@@ -246,9 +253,6 @@ pub struct CreateOffer<'info> {
 
     #[account(mut)]
     pub maker: Signer<'info>,
-
-    /// CHECK: This is the authority field in user_profile, validated by has_one
-    pub authority: UncheckedAccount<'info>,
 
     pub token_program: Program<'info, Token>,
     pub system_program: Program<'info, System>,
