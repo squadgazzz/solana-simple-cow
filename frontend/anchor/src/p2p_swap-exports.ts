@@ -2,7 +2,7 @@
 import { AnchorProvider, Program } from '@coral-xyz/anchor'
 import { Cluster, PublicKey } from '@solana/web3.js'
 import P2pSwapIDL from '../idl/p2p_swap.json'
-import type { P2pSwap } from '../target/types/p2p_swap'
+import type { P2pSwap } from './types/p2p_swap'
 
 // Re-export the generated IDL and type
 export { P2pSwap, P2pSwapIDL }

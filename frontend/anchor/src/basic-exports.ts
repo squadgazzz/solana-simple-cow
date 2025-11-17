@@ -2,7 +2,7 @@
 import { AnchorProvider, Program } from '@coral-xyz/anchor'
 import { Cluster, PublicKey } from '@solana/web3.js'
 import BasicIDL from '../idl/basic.json'
-import type { Basic } from '../target/types/basic'
+import type { Basic } from './types/basic'
 
 // Re-export the generated IDL and type
 export { Basic, BasicIDL }
