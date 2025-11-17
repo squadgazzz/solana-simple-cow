@@ -1,7 +1,7 @@
 // Here we export some useful types and functions for interacting with the P2P Swap Anchor program.
 import { AnchorProvider, Program } from '@coral-xyz/anchor'
 import { Cluster, PublicKey } from '@solana/web3.js'
-import P2pSwapIDL from '../target/idl/p2p_swap.json'
+import P2pSwapIDL from '../idl/p2p_swap.json'
 import type { P2pSwap } from '../target/types/p2p_swap'
 
 // Re-export the generated IDL and type
