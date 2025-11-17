@@ -1,6 +1,6 @@
 # Project Description
 
-**Deployed Frontend URL:** [To be added after Vercel deployment]
+**Deployed Frontend URL:** https://solana-simple-cow.vercel.app/p2p-swap
 
 **Solana Program ID:** `Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9`
 
