@@ -373,4 +373,9 @@ This P2P Token Swap platform was built to explore advanced Solana concepts inclu
 - Add price ratio calculations and sorting
 - Support for partial fills
 - On-chain offer expiration
-- Offer history and analytics
+- **Offer history and analytics**: Currently not implemented due to RPC limitations. Querying transaction history for executed/cancelled offers requires 100+ RPC requests (1 for signatures + 100 for transaction details), which exceeds the rate limits of public RPC nodes. This feature would require either:
+  - A paid RPC provider (Helius, QuickNode)
+  - A dedicated indexer solution (The Graph, custom indexer)
+  - Adding Anchor events to the program and using event-based indexing
+
+  For now, users can view their transaction history directly on [Solscan](https://solscan.io/account/Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9?cluster=devnet#transactions) by browsing the program's transactions.
