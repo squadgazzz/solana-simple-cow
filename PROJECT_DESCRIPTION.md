@@ -162,7 +162,7 @@ pub enum ErrorCode {
 
 ### Test Coverage
 
-Comprehensive test suite with 12 tests covering all instructions with both happy and unhappy paths. All tests validate proper account creation, state transitions, token transfers, and error handling.
+Comprehensive test suite covering all instructions with both happy and unhappy paths. All tests validate proper account creation, state transitions, token transfers, and error handling.
 
 **Happy Path Tests:**
 
@@ -221,22 +221,8 @@ cd anchor_project/p2p_swap
 # Install dependencies
 yarn install
 
-# Run all tests (12 tests, all passing)
+# Run all tests
 anchor test
-
-# Test output summary:
-# ✓ Successfully initializes user profile (460ms)
-# ✓ Cannot initialize user profile twice
-# ✓ Successfully initializes taker user profile (461ms)
-# ✓ Successfully creates first offer (463ms)
-# ✓ Rejects offer with zero amount_offered
-# ✓ Rejects offer with zero amount_wanted
-# ✓ Successfully creates second offer (444ms)
-# ✓ Successfully cancels offer by maker (465ms)
-# ✓ Rejects cancel by non-maker
-# ✓ Successfully accepts offer with atomic swap (494ms)
-# ✓ Rejects accept with wrong token mints (461ms)
-# ✓ Complete end-to-end swap works correctly (921ms)
 ```
 
 ## Frontend Implementation
@@ -388,5 +374,3 @@ This P2P Token Swap platform was built to explore advanced Solana concepts inclu
 - Support for partial fills
 - On-chain offer expiration
 - Offer history and analytics
-
-The project demonstrates a production-ready swap mechanism suitable for any SPL token pairs on Solana.
