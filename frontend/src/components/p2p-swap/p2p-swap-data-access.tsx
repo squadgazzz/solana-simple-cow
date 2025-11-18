@@ -143,6 +143,18 @@ export function useP2pSwapProgram() {
       // Build transaction with ATA creation instructions (idempotent - safe if accounts exist)
       const transaction = new Transaction()
 
+      // Add instruction to create maker's ATA for receiving the wanted token
+      transaction.add(
+        createAssociatedTokenAccountIdempotentInstruction(
+          publicKey,                // payer (taker pays for maker's ATA too)
+          makerTokenAccountWanted,  // ATA address
+          maker,                    // owner (maker)
+          mintWanted,               // mint
+          TOKEN_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        )
+      )
+
       // Add instruction to create taker's ATA for the wanted token (token they're giving)
       transaction.add(
         createAssociatedTokenAccountIdempotentInstruction(
