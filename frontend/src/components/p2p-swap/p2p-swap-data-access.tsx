@@ -2,8 +2,13 @@
 
 import { getP2pSwapProgram, getP2pSwapProgramId } from '@project/anchor'
 import { useConnection, useWallet } from '@solana/wallet-adapter-react'
-import { Cluster, PublicKey } from '@solana/web3.js'
-import { getAssociatedTokenAddress } from '@solana/spl-token'
+import { Cluster, PublicKey, Transaction } from '@solana/web3.js'
+import {
+  getAssociatedTokenAddress,
+  createAssociatedTokenAccountIdempotentInstruction,
+  TOKEN_PROGRAM_ID,
+  ASSOCIATED_TOKEN_PROGRAM_ID
+} from '@solana/spl-token'
 import { useMutation, useQuery } from '@tanstack/react-query'
 import { useMemo } from 'react'
 import { useCluster } from '../cluster/cluster-data-access'
@@ -124,21 +129,7 @@ export function useP2pSwapProgram() {
       const takerTokenAccountOffered = await getAssociatedTokenAddress(mintWanted, publicKey)
       const takerTokenAccountWanted = await getAssociatedTokenAddress(mintOffered, publicKey)
 
-      // Verify taker has the required token accounts
-      const takerOfferedInfo = await connection.getAccountInfo(takerTokenAccountOffered)
-      if (!takerOfferedInfo) {
-        throw new Error(
-          `You don't have a token account for the wanted mint. Please create one first using: spl-token create-account ${mintWanted.toBase58()}`
-        )
-      }
-
-      const takerWantedInfo = await connection.getAccountInfo(takerTokenAccountWanted)
-      if (!takerWantedInfo) {
-        throw new Error(
-          `You don't have a token account for the offered mint. Please create one first using: spl-token create-account ${mintOffered.toBase58()}`
-        )
-      }
-
+      // Derive PDAs for offer and vault
       const [offer] = PublicKey.findProgramAddressSync(
         [Buffer.from('offer'), maker.toBuffer(), new BN(offerId).toArrayLike(Buffer, 'le', 8)],
         programId
@@ -149,7 +140,35 @@ export function useP2pSwapProgram() {
         programId
       )
 
-      return program.methods
+      // Build transaction with ATA creation instructions (idempotent - safe if accounts exist)
+      const transaction = new Transaction()
+
+      // Add instruction to create taker's ATA for the wanted token (token they're giving)
+      transaction.add(
+        createAssociatedTokenAccountIdempotentInstruction(
+          publicKey,                // payer (taker pays for their own ATA)
+          takerTokenAccountOffered, // ATA address
+          publicKey,                // owner
+          mintWanted,               // mint
+          TOKEN_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        )
+      )
+
+      // Add instruction to create taker's ATA for the offered token (token they're receiving)
+      transaction.add(
+        createAssociatedTokenAccountIdempotentInstruction(
+          publicKey,               // payer (taker pays for their own ATA)
+          takerTokenAccountWanted, // ATA address
+          publicKey,               // owner
+          mintOffered,             // mint
+          TOKEN_PROGRAM_ID,
+          ASSOCIATED_TOKEN_PROGRAM_ID
+        )
+      )
+
+      // Add the accept_offer program instruction
+      const acceptInstruction = await program.methods
         .acceptOffer(new BN(offerId))
         .accountsPartial({
           offer,
@@ -162,7 +181,13 @@ export function useP2pSwapProgram() {
           mintOffered,
           mintWanted,
         })
-        .rpc()
+        .instruction()
+
+      transaction.add(acceptInstruction)
+
+      // Send the combined transaction
+      const signature = await provider.sendAndConfirm(transaction)
+      return signature
     },
     onSuccess: (signature) => {
       transactionToast(signature)

@@ -18,6 +18,7 @@ A decentralized peer-to-peer token swap platform built on Solana, implementing a
 - **Cancel Offers**: Retrieve locked tokens from escrow at any time
 - **Auto-Initialization**: User profiles are automatically created on first offer creation
 - **Auto-Token Account Detection**: Token accounts are automatically derived from wallet addresses
+- **Automatic ATA Creation**: Missing Associated Token Accounts are automatically created when accepting offers - no manual CLI commands needed!
 - **Multiple Offers per User**: Create unlimited swap offers with unique IDs
 - **Escrow Security**: Tokens locked in PDA-controlled vaults, eliminating counterparty risk
 
@@ -41,8 +42,9 @@ A decentralized peer-to-peer token swap platform built on Solana, implementing a
    - See offered amounts, wanted amounts, and maker addresses
 5. **Accept an Offer**:
    - Click "Accept" button on any offer
-   - All token accounts are automatically derived
-   - Confirm the transaction in your wallet
+   - All token accounts are automatically derived and created if needed
+   - Missing Associated Token Accounts (ATAs) are created automatically in the transaction
+   - Confirm the transaction in your wallet (taker pays ~0.004 SOL for ATA creation if needed)
    - Tokens are atomically swapped!
 6. **Cancel Your Offer**:
    - Find your offer in the list
@@ -257,11 +259,12 @@ anchor test
    - Create Offer: Simple form for creating swap offers
    - Browse Offers: Table view of all available offers
 
-2. **Auto-Token Account Detection**:
+2. **Auto-Token Account Detection & Creation**:
    - Uses `getAssociatedTokenAddress()` to automatically derive token accounts
    - Eliminates manual address entry for better UX
-   - Validates token accounts exist before submission
-   - Helpful error messages if accounts are missing
+   - Automatically creates missing Associated Token Accounts (ATAs) when accepting offers
+   - Uses idempotent ATA creation instructions (safe even if accounts exist)
+   - Taker pays for their own ATA creation (~0.00203928 SOL per account, rent-recoverable)
 
 3. **Real-Time Data**:
    - Fetches all offers using `program.account.offer.all()`
