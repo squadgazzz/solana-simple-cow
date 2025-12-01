@@ -1,95 +1,381 @@
-[![Review Assignment Due Date](https://classroom.github.com/assets/deadline-readme-button-22041afd0340ce965d47ae6ef1cefeee28c7c493a6346c4f15d667ab976d596c.svg)](https://classroom.github.com/a/TzDKD5h9)
-![School of Solana](https://github.com/Ackee-Blockchain/school-of-solana/blob/master/.banner/banner.png?raw=true)
+# Project Description
 
-## 📚Solana Program
-We are about halfway through the course, and you already have some experience with programming on Solana. It is time to create something on your own! You will be building a dApp that will serve as the culmination of everything you have learned so far. Feel free to implement whatever comes to your mind, (as long as it passes the requirements).
+**Deployed Frontend URL:** https://solana-simple-cow.vercel.app/p2p-swap
 
-**This does not mean that the School of Solana is coming to an end just yet!** There are still several exciting lectures ahead, as well as one security related task.
+**Solana Program ID:** `Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9`
 
-### Task details
-This task consists of two parts:
-1. **Core of your dApp**
-    - A deployed Solana program.
-2. **Frontend**
-    - A simple frontend to interact with the dApp.
+**Solscan (Devnet):** https://solscan.io/account/Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9?cluster=devnet
 
-### Requirements
-- An Anchor program deployed on **Devnet** or **Mainnet**.
-- The Anchor program must use a PDA (Program Derived Address).
-- At least one TypeScript **test** for each Anchor program instruction. These tests should cover both **happy** and **unhappy** (intentional error-triggering) scenarios.
-- A simple **frontend** deployed using your preferred provider (for more info, check below).
-- A filled out **PROJECT_DESCRIPTION.md** file.
+## Project Overview
 
-### Ideas
-We highly recommend starting with something simple. Take time to think through your project and work on it in iterations. Do not try to implement everything at once!
+### Description
+A decentralized peer-to-peer token swap platform built on Solana, implementing a Coincidence of Wants (CoW) order book system. Users can create swap offers by locking tokens in escrow and browse offers from other users to execute atomic token swaps. The platform uses an escrow-based approach where tokens are secured in PDA-controlled vaults until the swap is completed or cancelled, ensuring trustless and atomic exchanges between any SPL tokens on the Solana blockchain.
 
-Below is a list of few ideas to get you started:
-- **Social app**
-    - Instagram
-    - Giphy
-    - Friendtech
-    - Spotify
-- **Blog**
-- **Voting** ([D21 - Janeček method](https://www.ih21.org/en/guidelines))
-- **DeFi**
-    - Raffles
-    - Escrow
-    - Tipping
-    - Lending ([Save Documentation](https://docs.save.finance/))
-    - Liquid Staking ([Marinade Documentation](https://docs.marinade.finance/))
-    - Data Query with Pyth ([Pyth Documentation](https://docs.pyth.network/price-feeds))
-    - AMM ([Raydium Documentation](https://raydium.gitbook.io/raydium/))
-- **Gaming**
-    - Browser Game ([Gaming on Solana](https://solanacookbook.com/gaming/nfts-in-games.html#nfts-in-games))
+### Key Features
+- **Create Swap Offers**: Lock SPL tokens in escrow and specify what tokens you want in return
+- **Browse All Offers**: View all available swap offers from other users in a convenient table
+- **Atomic Swaps**: Execute trustless token exchanges in a single transaction
+- **Cancel Offers**: Retrieve locked tokens from escrow at any time
+- **Auto-Initialization**: User profiles are automatically created on first offer creation
+- **Auto-Token Account Detection**: Token accounts are automatically derived from wallet addresses
+- **Automatic ATA Creation**: Missing Associated Token Accounts are automatically created when accepting offers - no manual CLI commands needed!
+- **Multiple Offers per User**: Create unlimited swap offers with unique IDs
+- **Escrow Security**: Tokens locked in PDA-controlled vaults, eliminating counterparty risk
 
-### Deadline
-The deadline for this task is **Wednesday, November 19th, at 23:59 UTC**.
->[!CAUTION]
->Note that we will not accept submissions after the deadline.
+### How to Use the dApp
 
-### Submission
-There are two folders, one for the Anchor project, and one for the frontend. Push your changes to the **main** branch of **this** repository.
+1. **Connect Wallet** - Connect your Solana wallet (Phantom, Solflare, etc.) to Devnet
+2. **Get Test Tokens**:
+   - Visit https://faucet.solana.com/ to get Devnet SOL
+   - Create test SPL tokens using `spl-token create-token --url devnet`
+   - Or use existing Devnet tokens like USDC-Dev, where airdrops can be done on faucets, like https://faucet.circle.com/
+3. **Create an Offer**:
+   - Click "Create Offer" tab
+   - Enter the token mint address you want to offer
+   - Enter amount in base units (e.g., 1000000 for 1 USDC with 6 decimals)
+   - Enter the token mint address you want in return
+   - Enter the amount you want to receive
+   - Click "Create Offer" - your token account is automatically detected!
+4. **Browse Offers**:
+   - Click "Browse Offers" tab
+   - View all available swap offers in the table
+   - See offered amounts, wanted amounts, and maker addresses
+5. **Accept an Offer**:
+   - Click "Accept" button on any offer
+   - All token accounts are automatically derived and created if needed
+   - Missing Associated Token Accounts (ATAs) are created automatically in the transaction
+   - Confirm the transaction in your wallet (taker pays ~0.004 SOL for ATA creation if needed)
+   - Tokens are atomically swapped!
+6. **Cancel Your Offer**:
+   - Find your offer in the list
+   - Cancel to retrieve your tokens from escrow
 
->[!IMPORTANT]
->It is essential that you fill out the `PROJECT_DESCRIPTION.md` template completely and accurately. This document will be used by AI for the initial evaluation, so provide detailed information about your project, including working links, clear descriptions, and technical implementation details.
+## Program Architecture
 
->[!NOTE]
->Your submission repository is public. Feel free to share the link to showcase your work!
+The P2P Token Swap program uses a sophisticated architecture with three types of PDAs, four core instructions, and an escrow-based swap mechanism. The program ensures atomicity through Solana's transaction model and security through PDA-controlled token vaults.
 
-### Evaluation
-The evaluation process is based on the **requirements**. If you meet the requirements, you pass the task!
+### PDA Usage
 
->[!NOTE]
->The first round of evaluations will be conducted by AI to verify requirements before manual review. AI can make mistakes. If you believe you fulfilled all requirements but weren't graded correctly, please create a support ticket and we will resolve the issue.
+The program uses three types of Program Derived Addresses to manage user state, offers, and token escrow:
 
->[!CAUTION]
->We expect original work that demonstrates your understanding and creativity. While you may draw inspiration from examples covered in lessons and tasks, **direct copying is not acceptable**. If you choose to build upon an example from the School of Solana materials, you must significantly expand it with additional features, instructions, and functionality to showcase your learning progress. 
+**PDAs Used:**
 
-### Example Workflow
-Let's say you are going to implement the Twitter dApp as the Solana Program. Here's how the steps could look:
+1. **UserProfile PDA**:
+   - Seeds: `["user_profile", user_wallet_pubkey]`
+   - Purpose: Tracks each user's offer count for unique offer ID generation
+   - Auto-initialized on first offer creation using `init_if_needed`
+   - Stores: authority (wallet), offer_count (u64)
 
-**1.** Implement Twitter dApp using the Anchor framework.
+2. **Offer PDA**:
+   - Seeds: `["offer", maker_wallet_pubkey, offer_id_u64_le_bytes]`
+   - Purpose: Stores offer metadata including mints, amounts, and creation timestamp
+   - Each user can create unlimited offers with incrementing IDs (0, 1, 2, ...)
+   - Ensures deterministic addressing and uniqueness per user
 
-**2.** Test the Twitter dApp using the Anchor framework.
+3. **Vault PDA**:
+   - Seeds: `["vault", offer_pubkey, mint_offered_pubkey]`
+   - Purpose: SPL token account that holds escrowed tokens until swap or cancellation
+   - Authority: The program itself (PDA signing)
+   - Ensures tokens are locked and can only be released by program instructions
 
-**3.** Deploy the Twitter dApp on the Solana Devnet.
+### Program Instructions
 
-**4.** Using the create solana dapp template, implement frontend for the Twitter dApp.
+**Instructions Implemented:**
 
-**5.** Publish Frontend using [Vercel](https://vercel.com). Ensure the deployment is publicly accessible.
+1. **initialize_user**:
+   - Creates a UserProfile account for a user
+   - Sets initial offer_count to 0
+   - Note: This instruction still exists but is optional - user profiles are auto-initialized in create_offer
 
-**6.** Fill out the PROJECT_DESCRIPTION.md template.
+2. **create_offer**:
+   - Auto-initializes UserProfile if it doesn't exist (using `init_if_needed`)
+   - Creates an Offer PDA with unique ID based on user's offer_count
+   - Creates a Vault PDA to hold escrowed tokens
+   - Transfers tokens from maker's token account to vault
+   - Increments user's offer_count for next unique ID
+   - Validates: amounts > 0, sufficient token balance
+   - Stores: offer metadata (mints, amounts, maker, timestamps, bumps)
 
-**7.** Submit the Twitter dApp using GitHub Classroom.
+3. **accept_offer**:
+   - Validates the offer exists and matches provided data
+   - Atomically executes two token transfers:
+     - Transfers offered tokens from vault to taker
+     - Transfers wanted tokens from taker to maker
+   - Closes the offer and vault accounts
+   - Returns rent to maker
+   - Validates: correct mints, sufficient balances, account ownership
 
-### Useful Links
-- [Vercel](https://vercel.com)
-- [Create Solana Dapp](https://github.com/solana-foundation/create-solana-dapp)
-- [Account Macro Constraints](https://docs.rs/anchor-lang/0.31.1/anchor_lang/derive.Accounts.html)
-- [Solana Developers Courses](https://solana.com/developers/courses)
+4. **cancel_offer**:
+   - Validates caller is the offer maker (authorization check)
+   - Returns escrowed tokens from vault to maker
+   - Closes offer and vault accounts
+   - Returns rent to maker
+   - Prevents: non-makers from cancelling others' offers
 
------
+### Account Structures
 
-### Need help?
->[!TIP]
->If you have any questions, feel free to reach out to us on [Discord](https://discord.gg/z3JVuZyFnp).
+```rust
+// User profile tracking offer count for unique IDs
+#[account]
+pub struct UserProfile {
+    pub authority: Pubkey,    // 32 bytes - wallet that owns this profile
+    pub offer_count: u64,     // 8 bytes - counter for generating unique offer IDs
+}
+// Total: 40 bytes + 8 discriminator = 48 bytes
+
+// Offer metadata stored on-chain
+#[account]
+pub struct Offer {
+    pub offer_id: u64,          // 8 bytes - unique ID per user (0, 1, 2, ...)
+    pub maker: Pubkey,          // 32 bytes - wallet that created the offer
+    pub mint_offered: Pubkey,   // 32 bytes - SPL token mint being offered
+    pub mint_wanted: Pubkey,    // 32 bytes - SPL token mint wanted in return
+    pub amount_offered: u64,    // 8 bytes - amount of offered tokens (base units)
+    pub amount_wanted: u64,     // 8 bytes - amount of wanted tokens (base units)
+    pub vault_bump: u8,         // 1 byte - PDA bump for vault derivation
+    pub bump: u8,               // 1 byte - PDA bump for offer derivation
+    pub created_at: i64,        // 8 bytes - Unix timestamp of offer creation
+}
+// Total: 130 bytes + 8 discriminator = 138 bytes
+```
+
+### Error Codes
+
+```rust
+#[error_code]
+pub enum ErrorCode {
+    #[msg("Amount must be greater than zero")]
+    InvalidAmount,           // 6000
+
+    #[msg("Offer counter overflow")]
+    CounterOverflow,         // 6001
+
+    #[msg("Unauthorized: you are not the maker of this offer")]
+    Unauthorized,            // 6002
+
+    #[msg("Invalid token mint provided")]
+    InvalidMint,            // 6003
+}
+```
+
+## Testing
+
+### Test Coverage
+
+Comprehensive test suite covering all instructions with both happy and unhappy paths. All tests validate proper account creation, state transitions, token transfers, and error handling.
+
+**Happy Path Tests:**
+
+1. **Initialize User Profile**: Successfully creates a UserProfile account with offer_count = 0
+2. **Initialize Taker Profile**: Creates a second user profile for testing multi-user scenarios
+3. **Create First Offer**:
+   - Creates offer with ID 0
+   - Locks 100,000 tokens in vault
+   - Increments offer_count to 1
+   - Stores correct metadata (mints, amounts, maker, timestamp)
+4. **Create Second Offer**:
+   - Same user creates another offer with ID 1
+   - Validates counter increment works correctly
+   - Proves multiple offers per user functionality
+5. **Cancel Offer**:
+   - Maker successfully cancels their own offer
+   - Tokens returned from vault to maker
+   - Offer and vault accounts closed
+   - Rent returned to maker
+6. **Accept Offer**:
+   - Taker successfully accepts maker's offer
+   - Atomic swap: offered tokens → taker, wanted tokens → maker
+   - Accounts closed and rent returned
+   - Validates correct token amounts transferred
+7. **Full End-to-End Swap Flow**:
+   - Complete workflow from offer creation to acceptance
+   - Validates all state transitions
+   - Checks final token balances match expected amounts
+
+**Unhappy Path Tests:**
+
+1. **Initialize User Twice**:
+   - Fails when trying to create UserProfile that already exists
+   - Validates Anchor's account initialization protection
+2. **Create Offer with Zero Amount Offered**:
+   - Rejects offer creation with amount_offered = 0
+   - Validates InvalidAmount error is thrown
+3. **Create Offer with Zero Amount Wanted**:
+   - Rejects offer creation with amount_wanted = 0
+   - Ensures both amounts must be positive
+4. **Cancel Offer by Non-Maker**:
+   - Different user tries to cancel someone else's offer
+   - Fails with Unauthorized error
+   - Validates maker-only cancellation security
+5. **Accept Offer with Wrong Mint**:
+   - Taker provides incorrect token mint addresses
+   - Transaction fails due to account constraint violations
+   - Prevents token type mismatches
+
+### Running Tests
+
+```bash
+# Navigate to program directory
+cd anchor_project/p2p_swap
+
+# Install dependencies
+yarn install
+
+# Run all tests
+anchor test
+```
+
+## Frontend Implementation
+
+### Technologies Used
+
+- **Framework**: Next.js 15.5.3 with App Router
+- **Styling**: Tailwind CSS + shadcn/ui components
+- **Solana Integration**:
+  - `@solana/web3.js` for blockchain interactions
+  - `@solana/wallet-adapter-react` for wallet connections
+  - `@solana/spl-token` for token account derivation
+  - `@coral-xyz/anchor` for program interactions
+- **State Management**: TanStack Query (React Query) for data fetching and caching
+- **UI Components**: Custom components with Card, Table, Button, Input from shadcn/ui
+
+### Frontend Features
+
+1. **Two-Tab Interface**:
+   - Create Offer: Simple form for creating swap offers
+   - Browse Offers: Table view of all available offers
+
+2. **Auto-Token Account Detection & Creation**:
+   - Uses `getAssociatedTokenAddress()` to automatically derive token accounts
+   - Eliminates manual address entry for better UX
+   - Automatically creates missing Associated Token Accounts (ATAs) when accepting offers
+   - Uses idempotent ATA creation instructions (safe even if accounts exist)
+   - Taker pays for their own ATA creation (~0.00203928 SOL per account, rent-recoverable)
+
+3. **Real-Time Data**:
+   - Fetches all offers using `program.account.offer.all()`
+   - Auto-refreshes after transactions
+   - Shows loading states during operations
+
+4. **Wallet Integration**:
+   - Supports all Solana wallet adapters (Phantom, Solflare, etc.)
+   - Connects to Devnet by default
+   - Transaction toast notifications with Solscan links
+
+5. **User-Friendly Input**:
+   - Clear labels and placeholders
+   - Helpful hints about base units (e.g., "1 SOL = 1000000000 lamports")
+   - Amount explanations for different token decimals
+   - One-click offer acceptance
+
+### Project Structure
+
+```
+frontend/
+├── src/
+│   ├── app/
+│   │   ├── page.tsx                    # Landing page with project info
+│   │   └── p2p-swap/page.tsx          # Main swap application page
+│   ├── components/
+│   │   ├── p2p-swap/
+│   │   │   ├── p2p-swap-feature.tsx   # Main component with tabs
+│   │   │   ├── p2p-swap-data-access.tsx  # Anchor program hooks
+│   │   │   └── p2p-swap-ui.tsx        # UI components (Create, Browse)
+│   │   ├── ui/                         # shadcn/ui components
+│   │   └── ...
+│   └── ...
+├── anchor/
+│   ├── src/p2p_swap-exports.ts        # Program exports
+│   └── target/idl/p2p_swap.json       # Program IDL
+└── package.json
+```
+
+## Technical Implementation Details
+
+### Escrow Pattern vs Delegation
+
+The program uses an **escrow pattern** where tokens are immediately transferred to a PDA-controlled vault upon offer creation, rather than using token delegation/approval. This approach provides:
+- **Immediate locking**: Tokens are secured instantly
+- **No collision risk**: Each offer has its own unique vault
+- **Atomicity guarantee**: Transfers happen in single transaction
+- **Standard pattern**: Widely used in Solana DeFi (Jupiter, Raydium)
+
+### Counter-Based Unique IDs
+
+Offers are identified using a counter-based approach (0, 1, 2, ...) per user, providing:
+- **Unlimited throughput**: No nonce exhaustion issues
+- **Deterministic addressing**: Easy PDA derivation
+- **No collisions**: Each user has independent counter
+- **Scalability**: Simple increment operation
+
+### Auto-Initialization Feature
+
+User profiles use `init_if_needed` in the `create_offer` instruction:
+- **Better UX**: Users don't need separate initialization step
+- **Gas efficient**: Only pays once when actually needed
+- **Safe**: Anchor's `init_if_needed` prevents re-initialization attacks
+- **Professional**: Matches UX of modern Solana dApps
+
+### Security Considerations
+
+1. **Authorization**: Offer cancellation validates `maker == signer`
+2. **Mint Validation**: Checks in accept_offer ensure correct token types
+3. **Amount Validation**: Rejects zero-amount offers
+4. **PDA Signing**: Vault authority is program-derived, preventing unauthorized transfers
+5. **Atomicity**: All swaps succeed or fail as a unit, no partial states
+6. **Account Constraints**: Anchor's `has_one` and `constraint` macros enforce relationships
+
+## Deployment Information
+
+### Devnet Deployment
+
+- **Network**: Solana Devnet
+- **Program ID**: `Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9`
+- **Deployment Date**: November 2025
+- **Cluster**: https://api.devnet.solana.com
+- **Explorer**: https://solscan.io/account/Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9?cluster=devnet
+
+### Testing on Devnet
+
+1. Get Devnet SOL: https://faucet.solana.com/
+2. Create test tokens:
+   ```bash
+   spl-token create-token --url devnet
+   spl-token create-account <mint> --url devnet
+   spl-token mint <mint> 1000000000 --url devnet
+   ```
+3. Use Wrapped SOL for testing:
+   ```bash
+   spl-token wrap 1 --url devnet
+   # Mint: So11111111111111111111111111111111111111112
+   ```
+
+### Additional Notes for Evaluators
+
+This P2P Token Swap platform was built to explore advanced Solana concepts including PDAs, escrow patterns, and atomic token swaps. The implementation focuses on security, user experience, and professional-grade architecture.
+
+**Key Design Decisions:**
+- **Escrow over delegation**: Chosen for simplicity and security
+- **Counter-based IDs**: Selected for unlimited scalability
+- **Auto-initialization**: Improves UX by eliminating setup steps
+- **Auto-token account detection**: Matches modern dApp standards
+
+**Challenges Overcome:**
+- Understanding PDA seed derivation for unique offer identification
+- Implementing proper CPI for token transfers with PDA signing
+- Managing account lifetimes and rent optimization
+- Handling Anchor type generation issues with `accountsPartial()`
+- Building user-friendly frontend with automatic token account derivation
+
+**Future Enhancements:**
+- Add decimal conversion in UI for human-readable amounts
+- Implement offer filtering and search
+- Add price ratio calculations and sorting
+- Support for partial fills
+- On-chain offer expiration
+- **Offer history and analytics**: Currently not implemented due to RPC limitations. Querying transaction history for executed/cancelled offers requires 100+ RPC requests (1 for signatures + 100 for transaction details), which exceeds the rate limits of public RPC nodes. This feature would require either:
+  - A paid RPC provider (Helius, QuickNode)
+  - A dedicated indexer solution (The Graph, custom indexer)
+  - Adding Anchor events to the program and using event-based indexing
+
+  For now, users can view their transaction history directly on [Solscan](https://solscan.io/account/Fqww93pxMsRRk2V83TpPk2GSwKc64cS8ktpXp7TpHi9?cluster=devnet#transactions) by browsing the program's transactions.
